@@ -8,15 +8,6 @@ import json
 
 app = FastAPI()
 
-origins = ["*"]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 # class Item(BaseModel):
 #     name: str
 #     price: float
@@ -46,10 +37,10 @@ class Model_input(BaseModel):
     month: str
 
 
-data = Model_input(category="Alkoholunfälle",
-                   type="insgesamt",
-                   year=2021,
-                   month="01")
+# data = Model_input(category="Alkoholunfälle",
+#                    type="insgesamt",
+#                    year=2021,
+#                    month="01")
 
 # data = data.dict()
 # categorical_columns = ['category', 'type', 'month']
@@ -63,12 +54,23 @@ data = Model_input(category="Alkoholunfälle",
 # print(model.predict(z))
 
 
-@app.get('https://aichallenge.herokuapp.com/')
+@app.get('/')
 def index():
     return {'message': 'Hello, World'}
 
 
-@app.post('https://aichallenge.herokuapp.com/predict')
+def transform(cat1, cat2, num, cat3):
+    category_input = [cat1, cat2, cat3]
+    x = ohe.transform([category_input])
+    y = scaler.transform([[num]])
+    z = model.predict(np.concatenate((y, x), axis=1))
+    return z[0]
+
+
+# print(transform('Alkoholunfälle', 'insgesamt', 2021, '01'))
+
+
+@app.post('/predict')
 def prediction(data: Model_input):
     input_data = data.json()
     input_dictionary = json.loads(input_data)
@@ -76,14 +78,10 @@ def prediction(data: Model_input):
     type = input_dictionary['type']
     year = input_dictionary['year']
     month = input_dictionary['month']
-    category_input = [category, type, month]
-    x = ohe.transform([category_input])
-    y = scaler.transform([[year]])
-    z = model.predict(np.concatenate((y, x), axis=1))
-    prediction = z[0]
-    return {'prediction': prediction}
+    prediction = transform(category, type, year, month)
+    return {'prediction': prediction.tolist()}
 
 
-print(prediction(data))
-# if __name__ == '__main__':
-#     uvicorn.run(app, host='127.0.0.1', port=8000)
+# print(prediction(data))
+if __name__ == '__main__':
+    uvicorn.run(app, host='127.0.0.1', port=8000)
