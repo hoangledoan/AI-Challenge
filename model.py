@@ -3,11 +3,20 @@ from pydantic import BaseModel
 import pandas as pd
 import numpy as np
 import uvicorn
+import pickle
+import json
 
 app = FastAPI()
 
-import pickle
-import json
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # class Item(BaseModel):
 #     name: str
 #     price: float
@@ -54,12 +63,12 @@ data = Model_input(category="Alkoholunfälle",
 # print(model.predict(z))
 
 
-@app.get('/')
+@app.get('https://aichallenge.herokuapp.com/')
 def index():
     return {'message': 'Hello, World'}
 
 
-@app.post('/predict')
+@app.post('https://aichallenge.herokuapp.com/predict')
 def prediction(data: Model_input):
     input_data = data.json()
     input_dictionary = json.loads(input_data)
