@@ -7,3 +7,4 @@ xgboost
 requests
 fastapi
 pydantic
+pickle
