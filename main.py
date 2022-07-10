@@ -31,9 +31,9 @@ class Model_input(BaseModel):
     month: str
 
 
-@app.get('/')
-def index():
-    return {'message': 'Hello, World'}
+# @app.get('/')
+# def index():
+#     return {'message': 'Hello, World'}
 
 
 def transform(cat1, cat2, num, cat3):
