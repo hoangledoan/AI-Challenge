@@ -8,3 +8,4 @@ requests
 fastapi
 pydantic
 pickles
+uvicorn
