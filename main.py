@@ -1,11 +1,12 @@
+import json
+import pickle
+
+import numpy as np
+import pandas as pd
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import pandas as pd
-import numpy as np
-import uvicorn
-import pickle
-import json
 
 app = FastAPI()
 
@@ -25,15 +26,8 @@ scaler = pickle.load(open('scl.pkl', 'rb'))
 
 
 class Model_input(BaseModel):
-    category: str
-    type: str
     year: int
     month: str
-
-
-# @app.get('/')
-# def index():
-#     return {'message': 'Hello, World'}
 
 
 def transform(cat1, cat2, num, cat3):
@@ -44,21 +38,17 @@ def transform(cat1, cat2, num, cat3):
     return z[0]
 
 
-# print(transform('Alkoholunfälle', 'insgesamt', 2021, '01'))
-
-
 @app.post('/predict')
 def prediction(data: Model_input):
     input_data = data.json()
     input_dictionary = json.loads(input_data)
-    category = input_dictionary['category']
-    type = input_dictionary['type']
+    category = 'Alkoholunfälle'
+    type = 'insgesamt'
     year = input_dictionary['year']
     month = input_dictionary['month']
     prediction = transform(category, type, year, month)
     return {'prediction': prediction.tolist()}
 
 
-# print(prediction(data))
-if __name__ == '__main__':
-    uvicorn.run(app, host='127.0.0.1', port=8000)
+# if __name__ == '__main__':
+#     uvicorn.run(app, host='127.0.0.1', port=8000)
